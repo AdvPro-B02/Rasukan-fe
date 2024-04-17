@@ -1,7 +1,7 @@
 {
     "builds": [
         {
-            "src": "rasukan-fe/wsgi.py",
+            "src": "Rasukan-fe/wsgi.py",
             "use": "@vercel/python",
             "config": {
                 "maxLambdaSize": "15mb",
@@ -12,7 +12,7 @@
     "routes": [
         {
             "src": "/(.*)",
-            "dest": "rasukan-fe/wsgi.py"
+            "dest": "Rasukan-fe/wsgi.py"
         }
     ]
 }
