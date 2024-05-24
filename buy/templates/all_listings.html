@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .card-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        margin-top: 20px;
+    }
+    
+    .card {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 10px;
+        width: 300px; /* Adjust as needed */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        background-color: #fff;
+    }
+    
+    .card h2 {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+    
+    .card p {
+        margin: 5px 0;
+    }
+</style>
+
+<h1><a href="{% url 'buy:show_main' %}" style="color: black; text-decoration: none;">All Listings</a></h1>
+
+
+<div class="card-container">
+    {% for listing in listings %}
+    <div class="card">
+        <h2>{{ listing.name }}</h2>
+        <p>Price: {{ listing.price }}</p>
+        <p>Stock: {{ listing.stock }}</p>
+        
+        {% if buyerID == listing.seller %}
+        <form action="{% url 'buy:edit_listing' %}" method="get">
+            {% csrf_token %}
+            <input type="hidden" name="listing_id" value="{{ listing.listingId }}">
+            <input type="submit" value="Edit">
+        </form>
+        {% else %}
+        <form action="{% url 'buy:add_to_cart' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="listing_id" value="{{ listing.listingId }}">
+            <input type="submit" value="Add to Cart">
+        </form>
+        {% endif %}
+        <button onclick="showDetails('{{ listing.listingId }}')">Show Details</button>
+        <div id="{{ listing.listingId }}" style="display: none;">
+            <p>Listing ID: {{ listing.listingId }}</p>
+            <p>Name: {{ listing.name }}</p>
+            <p>Price: {{ listing.price }}</p>
+            <p>Stock: {{ listing.stock }}</p>
+            <p>Seller: {{ listing.seller }}</p>
+            <p>Order Counter: {{ listing.orderCounter }}</p>
+            <p>Expired Date: {{ listing.expiredDate }}</p>
+            <p>Featured Listing: {{ listing.featuredListing }}</p>
+        </div>
+        
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    function showDetails(id) {
+        var detailsDiv = document.getElementById(id);
+        if (detailsDiv.style.display === "none") {
+            detailsDiv.style.display = "block";
+        } else {
+            detailsDiv.style.display = "none";
+        }
+    }
+</script>
+
+{% endblock content %}

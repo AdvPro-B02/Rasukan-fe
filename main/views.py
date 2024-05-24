@@ -4,5 +4,8 @@ from django.shortcuts import render
 def show_main(request):
     context = {
     }
+    resp = render(request, "main.html", context)
+    print(request.headers)
+    resp["Authorization"] = request.headers.get("Authorization")
 
-    return render(request, "main.html", context)
+    return resp

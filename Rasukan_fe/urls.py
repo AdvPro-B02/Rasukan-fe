@@ -23,8 +23,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('main.urls')),
     path('staff/', include('staff.urls')),
-    path('auth/', include('authentication.urls')),
+    path('', include('authentication.urls')),
     path('buy/', include('buy.urls')),
     path('sell/', include('sell.urls')),
     path('pay/', include('payment.urls')),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+] # + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
