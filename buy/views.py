@@ -3,8 +3,8 @@ from django.shortcuts import redirect, render
 import requests
 from django.http import JsonResponse
 
-link = 'http://localhost:8080/Buyer'
-# link = 'http://34.87.180.11:80/Buyer'
+# link = 'http://localhost:8080/Buyer'
+link = 'http://34.87.180.11:80/Buyer'
 
 # Create your views here.
 def show_main(request):
