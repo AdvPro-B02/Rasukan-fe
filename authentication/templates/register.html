@@ -3,6 +3,7 @@
 {% block content %}
 <h1>Register</h1>
 <form method="POST" class="form">
+    {% csrf_token %}
     <table>
         <tr><th>Name</th><td><input type="text" name="name" required></td></tr>
         <tr><th>Email</th><td><input type="email" name="email" required></td></tr>
