@@ -40,11 +40,18 @@
         <p>Stock: {{ listing.stock }}</p>
         
         {% if buyerID == listing.seller %}
-        <form action="{% url 'buy:edit_listing' %}" method="get">
-            {% csrf_token %}
-            <input type="hidden" name="listing_id" value="{{ listing.listingId }}">
-            <input type="submit" value="Edit">
-        </form>
+        <button onclick="showEditForm('{{ listing.listingId }}')">Edit</button>
+        <div id="edit-{{ listing.listingId }}" style="display: none;">
+            <form action="{% url 'buy:edit_listing' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="listing_id" value="{{ listing.listingId }}">
+                <input name="name" value="{{ listing.name }}">
+                <input name="price" value="{{ listing.price }}">
+                <input name="stock" value="{{ listing.stock }}">
+                <input type="submit" value="Confirm Edit">
+            </form>
+        </div>
+        <br>
         {% else %}
         <form action="{% url 'buy:add_to_cart' %}" method="post">
             {% csrf_token %}
@@ -53,15 +60,13 @@
         </form>
         {% endif %}
         <button onclick="showDetails('{{ listing.listingId }}')">Show Details</button>
-        <div id="{{ listing.listingId }}" style="display: none;">
+        <div id="details-{{ listing.listingId }}" style="display: none;">
             <p>Listing ID: {{ listing.listingId }}</p>
             <p>Name: {{ listing.name }}</p>
             <p>Price: {{ listing.price }}</p>
             <p>Stock: {{ listing.stock }}</p>
             <p>Seller: {{ listing.seller }}</p>
             <p>Order Counter: {{ listing.orderCounter }}</p>
-            <p>Expired Date: {{ listing.expiredDate }}</p>
-            <p>Featured Listing: {{ listing.featuredListing }}</p>
         </div>
         
     </div>
@@ -69,14 +74,24 @@
 </div>
 
 <script>
+    function showEditForm(id) {
+        var editFormDiv = document.getElementById('edit-' + id);
+        if (editFormDiv.style.display === "none") {
+            editFormDiv.style.display = "block";
+        } else {
+            editFormDiv.style.display = "none";
+        }
+    }
+
     function showDetails(id) {
-        var detailsDiv = document.getElementById(id);
+        var detailsDiv = document.getElementById('details-' + id);
         if (detailsDiv.style.display === "none") {
             detailsDiv.style.display = "block";
         } else {
             detailsDiv.style.display = "none";
         }
     }
+
 </script>
 
 {% endblock content %}

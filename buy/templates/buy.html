@@ -2,4 +2,10 @@
 
 {% block content %}
 <h1>Buy Page</h1>
+
+
+<a href="{% url 'buy:all_listings' %}"><button>All Listings</button></a>
+<a href="{% url 'buy:create_listing' %}"><button>Create Listing</button></a>
+<a href="{% url 'buy:see_my_listings' %}"><button>See My Listings</button></a>
+<a href="{% url 'buy:see_cart' %}"><button>See Cart</button></a>
 {% endblock content %}
