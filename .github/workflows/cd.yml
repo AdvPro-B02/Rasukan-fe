@@ -38,7 +38,7 @@ jobs:
       - name: Deploy to GCP
         run: |
           ssh -o StrictHostKeyChecking=no -i key ${{ secrets.GCP_USERNAME }}@${{ secrets.GCP_STATIC_IP }} "
-            sudo docker container stop ${{ secrets.CONTAINER_NAME }};
-            sudo docker container rm -f ${{ secrets.CONTAINER_NAME }};
-            sudo docker image rm -f ${{ secrets.REGISTRY_USER }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_TAG }};
+            sudo docker container stop ${{ secrets.CONTAINER_NAME }} || true;
+            sudo docker container rm -f ${{ secrets.CONTAINER_NAME }} || true;
+            sudo docker image rm -f ${{ secrets.REGISTRY_USER }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_TAG }} || true;
             sudo docker run --name ${{ secrets.CONTAINER_NAME }} -d -p 80:8000 ${{ secrets.REGISTRY_USER }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_TAG }}"
