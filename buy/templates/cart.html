@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    .cart-table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    .cart-table th,
+    .cart-table td {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    .cart-table th {
+        background-color: #f2f2f2;
+    }
+
+    .cart-table button {
+        cursor: pointer;
+        background-color: transparent;
+        border: none;
+        font-size: 14px;
+    }
+</style>
+<h1><a href="{% url 'buy:show_main' %}" style="color: black; text-decoration: none;">Cart</a></h1>
+<form id="cartForm" action="checkout/" method="post">
+    {% csrf_token %}
+    <table class="cart-table">
+        <thead>
+            <tr>
+                <th>Checkout</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Amount Ordered</th>
+                <th>Total</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <form></form>
+            {% for listing in listings %}
+            <tr>
+                <td><input type="checkbox" name="listingcheckout[]" value="{{ listing.listingId }}"></td>
+                <td>{{ listing.name }}</td>
+                <td id="price-{{ listing.listingId }}">{{ listing.price }}</td>
+                <td>{{ listing.stock }}</td>
+                <td>
+                    <button type="button" onclick="updateAmount('{{ listing.listingId }}', -1)">-</button>
+                    <span id="amount-{{ listing.listingId }}">1</span>
+                    <button type="button" onclick="updateAmount('{{ listing.listingId }}', 1)">+</button>
+                </td>
+                <td id="total-{{ listing.listingId }}">{{ listing.price }}</td>
+                <td>
+                    <form action="{% url 'buy:remove_from_cart' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="listing_id" value="{{ listing.listingId }}">
+                        <input type="hidden" name="owner_id" value="{{ ownerID }}">
+                        <button type="submit">remove</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="4">Total:</td>
+                <td id="overall-total"></td>
+            </tr>
+        </tbody>
+    </table>
+    <p>
+        <button type="submit">Submit</button>
+    </p>
+</form>
+
+
+<script>
+    function updateAmount(listingId, change) {
+        const amountSpan = document.getElementById(`amount-${listingId}`);
+        let amount = parseInt(amountSpan.textContent);
+
+        // Update the amount based on the change
+        amount += change;
+        if (amount < 1) {
+            amount = 1;
+        }
+        amountSpan.textContent = amount;
+
+        // Update the total price for the listing
+        const priceSpan = document.getElementById(`price-${listingId}`);
+        const price = parseFloat(priceSpan.textContent);
+        const totalSpan = document.getElementById(`total-${listingId}`);
+        totalSpan.textContent = (price * amount).toFixed(2);
+
+        calculateOverallTotal();
+    }
+
+    function calculateOverallTotal() {
+        const totals = document.querySelectorAll('[id^="total-"]');
+        let overallTotal = 0;
+        totals.forEach(total => {
+            overallTotal += parseFloat(total.textContent);
+        });
+        document.getElementById('overall-total').textContent = overallTotal.toFixed(2);
+    }
+    
+</script>
+{% endblock content %}
