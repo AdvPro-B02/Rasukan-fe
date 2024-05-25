@@ -129,6 +129,7 @@ def remove_from_cart(request):
 
         return redirect('buy:see_cart')
     
+
 def checkout(request):
     return render(request, 'checkout.html')
 
