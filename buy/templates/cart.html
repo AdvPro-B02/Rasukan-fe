@@ -27,6 +27,7 @@
 </style>
 <h1><a href="{% url 'buy:show_main' %}" style="color: black; text-decoration: none;">Cart</a></h1>
 <form id="cartForm" action="checkout/" method="post">
+    {% csrf_token %}
     <table class="cart-table">
         <thead>
             <tr>
@@ -69,8 +70,11 @@
             </tr>
         </tbody>
     </table>
-    <p><button type="submit">Submit</button></p>
+    <p>
+        <button type="submit">Submit</button>
+    </p>
 </form>
+
 
 <script>
     function updateAmount(listingId, change) {
@@ -101,5 +105,6 @@
         });
         document.getElementById('overall-total').textContent = overallTotal.toFixed(2);
     }
+    
 </script>
 {% endblock content %}

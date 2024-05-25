@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>Buy Page</h1>
+<h1><a href="{% url 'main:show_main' %}" style="color: black; text-decoration: none;">Buy Page</a></h1>
 
 
 <a href="{% url 'buy:all_listings' %}"><button>All Listings</button></a>
