@@ -6,6 +6,7 @@ from django.http import JsonResponse
 # link = 'http://localhost:8080/Buyer'
 link = 'http://34.87.180.11:80/Buyer'
 link_order = 'http://34.87.46.220/order'
+LSP_URL = "http://34.87.46.220:80"
 
 # Create your views here.
 def show_main(request):
@@ -30,24 +31,64 @@ def see_cart(request):
     return render(request, 'cart.html', context)
 
 
-
 def all_listings(request):
-    response = requests.get(f'{link}/listing/all')
-    listings = response.json()
-    buyerID = request.session.get('id') 
-    # buyerID = 'e3b012da-23a3-46c3-9307-23387f350d85'
+    all_listings_response = requests.get(f'{link}/listing/all')
+    if all_listings_response.status_code == 200:
+        all_listings = all_listings_response.json()
 
-    # if (is_staff):
-    #     staffId = 'true' 
-    # else:
-    #     staffId = 'false'
-    context = {
-        'listings': listings,
-        'buyerID': buyerID,
-        # 'staffID' : staffId
-    }
-    print(listings)
-    return render(request, "all_listings.html", context)
+        featured_response = requests.get(f'{LSP_URL}/staff/listing/featured')
+        if featured_response.status_code == 200:
+            featured_listings = featured_response.json()
+        else:
+            return JsonResponse({'error': 'Failed to fetch featured listings'}, status=500)
+
+        featured_ids = set()
+
+        for listing in featured_listings:
+            listing_id = listing['listingId']
+            detail_response = requests.get(f'{link}/listing/get/{listing_id}')
+            if detail_response.status_code == 200:
+                listing_detail = detail_response.json()
+                listing.update(listing_detail)
+                featured_ids.add(listing_id)
+            else:
+                listing['price'] = 'N/A'
+                listing['stock'] = 'N/A'
+                listing['seller'] = 'N/A'
+
+        displayed_listings = featured_listings.copy()
+
+        for listing in all_listings:
+            if listing['listingId'] not in featured_ids:
+                displayed_listings.append(listing)
+
+        buyerID = request.session.get('id')
+        context = {
+            'listings': displayed_listings,
+            'buyerID': buyerID,
+        }
+        return render(request, "all_listings.html", context)
+    else:
+        return JsonResponse({'error': 'Failed to fetch all listings'}, status=500)
+
+def featured_listings(request):
+    response = requests.get(f'{LSP_URL}/staff/listing/featured')
+    if response.status_code == 200:
+        featured_listings = response.json()
+        for listing in featured_listings:
+            listing_id = listing['listingId']
+            detail_response = requests.get(f'{link}/listing/get/{listing_id}')
+            if detail_response.status_code == 200:
+                listing_detail = detail_response.json()
+                listing.update(listing_detail)
+            else:
+                listing['price'] = 'N/A'
+                listing['stock'] = 'N/A'
+                listing['seller'] = 'N/A'
+        return render(request, "featured_listings.html", {'featured_listings': featured_listings})
+    else:
+        return JsonResponse({'error': 'Failed to fetch featured listings'}, status=500)
+
 
 def see_my_listings(request):
     userID = request.session.get('id')

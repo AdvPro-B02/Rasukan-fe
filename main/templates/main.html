@@ -17,7 +17,7 @@
 {% if request.COOKIES.staff == "true" %}
 <a href="{% url 'staff:manage_payment' %}"><button>Manage Payment</button></a>
 <a href="{% url 'staff:manage_topup' %}"><button>Manage Top Up</button></a>
-<a href="{% url 'buy:show_main' %}"><button>Buy</button></a>
+<a href="{% url 'staff:staff_all_listings' %}"><button>Manage Featured Listings</button></a>
 <a href="{% url 'authentication:logout' %}"><button>Logout</button></a>
 {% endif %}
 {% endif %}

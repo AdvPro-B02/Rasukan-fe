@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .card-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        margin-top: 20px;
+    }
+    
+    .card {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 10px;
+        width: 300px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        background-color: #fff;
+    }
+    
+    .card h2 {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+    
+    .card p {
+        margin: 5px 0;
+    }
+</style>
+
+<h1>Manage Featured Listings</h1>
+<a href="{% url 'staff:staff_featured_listings' %}"><button>Featured Listings</button></a>
+
+<div class="card-container">
+    {% for listing in listings %}
+    <div class="card" id="listing-{{ listing.listingId }}">
+        <h2>{{ listing.name }}</h2>
+        <p>Price: {{ listing.price }}</p>
+        <p>Stock: {{ listing.stock }}</p>
+        <p>Seller: {{ listing.seller }}</p>
+        
+        
+        {% if staff %}
+        <form class="feature-form" action="{% url 'staff:mark_listing_as_featured' listing.listingId %}" method="post">
+            {% csrf_token %}
+            <input type="submit" value="Mark as Featured">
+        </form>
+        
+        <form class="remove-feature-form" action="{% url 'staff:remove_featured_status' listing.listingId %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="_method" value="DELETE">
+            <input type="submit" value="Remove Featured Status">
+        </form>        
+        {% endif %}
+        
+        <button onclick="showDetails('{{ listing.listingId }}')">Show Details</button>
+        <div id="details-{{ listing.listingId }}" style="display: none;">
+            <p>Listing ID: {{ listing.listingId }}</p>
+            <p>Name: {{ listing.name }}</p>
+            <p>Price: {{ listing.price }}</p>
+            <p>Stock: {{ listing.stock }}</p>
+            <p>Seller: {{ listing.seller }}</p>
+            <p>Order Counter: {{ listing.orderCounter }}</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<a href="{% url 'main:show_main' %}"><button>Back</button></a>
+
+<script>
+    function showDetails(id) {
+        var detailsDiv = document.getElementById('details-' + id);
+        if (detailsDiv.style.display === "none") {
+            detailsDiv.style.display = "block";
+        } else {
+            detailsDiv.style.display = "none";
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.feature-form').forEach(function(form) {
+            form.addEventListener('submit', function(event) {
+                event.preventDefault(); 
+                const url = this.action;
+                const csrfToken = this.querySelector('[name=csrfmiddlewaretoken]').value;
+                
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                    },
+                }).then(response => response.json())
+                  .then(data => {
+                      if (data.success) {
+                          alert(data.message);
+                      } else {
+                          alert('Failed to mark as featured');
+                      }
+                  });
+            });
+        });
+
+        document.querySelectorAll('.remove-feature-form').forEach(function(form) {
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();  
+                const url = this.action;
+                const csrfToken = this.querySelector('[name=csrfmiddlewaretoken]').value;
+                
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                    },
+                }).then(response => response.json())
+                  .then(data => {
+                      if (data.success) {
+                          alert(data.message);
+                      } else {
+                          alert('Failed to remove featured status');
+                      }
+                  });
+            });
+        });
+    });
+</script>
+
+{% endblock content %}
