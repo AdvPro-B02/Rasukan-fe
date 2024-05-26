@@ -4,7 +4,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Manage Orders</title>
+    <title>Manage Topups</title>
     <style>
         .card {
             border: 1px solid #ccc;
@@ -35,45 +35,12 @@
             background-color: #f44336;
             color: white;
         }
-        #orders-container {
+        #topups-container {
             display: flex;
             flex-wrap: wrap;
             justify-content: flex-start;
         }
     </style>
-</head>
-<body>
-    <h1>Manage Orders</h1>
-    {% if message %}
-        <p>{{ message }}</p>
-    {% else %}
-    <div id="orders-container">
-        {% for order in orders %}
-            <div class="card" id="order-{{ order.orderId }}">
-                <h3>Order ID: {{ order.orderId }}</h3>
-                <p>User ID: {{ order.userId }}</p>
-                <p>Nominal: {{ order.nominal }}</p>
-                <p>Order Status: {{ order.orderStatus }}</p>
-                <p>Payment Status: {{ order.paymentStatus }}</p>
-                <p>Notes: {{ order.notes }}</p>
-                <p>Discount: {{ order.discount }}</p>
-                <h4>Listings</h4>
-                <ul>
-                    {% for listing in order.listings %}
-                        <li>{{ listing.name }} - Quantity: {{ listing.quantity }} - Price: {{ listing.price }}</li>
-                    {% endfor %}
-                </ul>
-                {% if order.orderStatus == "PROCESSED" %}
-                    <div class="button-container">
-                        {% csrf_token %}
-                        <button class="button finish" onclick="handleAction('{{ order.orderId }}', 'FINISHED')">FINISH</button>
-                        <button class="button cancel" onclick="handleAction('{{ order.orderId }}', 'CANCELLED')">CANCEL</button>
-                    </div>
-                {% endif %}
-            </div>
-        {% endfor %}
-    </div>
-    {% endif %}
     <script>
         function getCookie(name) {
             let cookieValue = null;
@@ -90,13 +57,13 @@
             return cookieValue;
         }
 
-        function handleAction(orderId, newStatus) {
-            const url = `{% url 'sell:update_order_status' order_id='ORDER_ID_PLACEHOLDER' new_status='NEW_STATUS_PLACEHOLDER' %}`.replace('ORDER_ID_PLACEHOLDER', orderId).replace('NEW_STATUS_PLACEHOLDER', newStatus);
+        function handleAction(topupId, newStatus) {
+            const url = `{% url 'staff:update_topup_status' topup_id='TOPUP_ID_PLACEHOLDER' new_status='NEW_STATUS_PLACEHOLDER' %}`.replace('TOPUP_ID_PLACEHOLDER', topupId).replace('NEW_STATUS_PLACEHOLDER', newStatus);
             const csrftoken = getCookie('csrftoken');
             console.log(`Making request to: ${url}`);
 
             fetch(url, {
-                method: 'PATCH',
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': csrftoken,
@@ -111,20 +78,38 @@
             .then(data => {
                 console.log('Response data:', data);
                 if (data.success) {
-                    const orderCard = document.getElementById(`order-${orderId}`);
-                    orderCard.querySelector('p:nth-child(4)').textContent = `Status: ${newStatus}`;
-                    orderCard.querySelector('.button-container').style.display = 'none';
+                    const topupCard = document.getElementById(`topup-${topupId}`);
+                    topupCard.querySelector('p:nth-child(4)').textContent = `Status: ${newStatus}`;
+                    topupCard.querySelector('.button-container').style.display = 'none';
                 } else {
-                    alert('Failed to update the payment status');
+                    alert('Failed to update the topup status');
                 }
             })
             .catch((error) => {
                 console.error('Error:', error);
-                alert('Error updating the payment status');
+                alert('Error updating the topup status');
             });
         }
     </script>
+</head>
+<body>
+    <h1>Manage Topups</h1>
+    <div id="topups-container">
+        {% for topup in topups %}
+            <div class="card" id="topup-{{ topup.id }}">
+                <h3>Topup ID: {{ topup.id }}</h3>
+                <p>User ID: {{ topup.userId }}</p>
+                <p>Amount: {{ topup.amount }}</p>
+                <p>Status: {{ topup.status }}</p>
+                {% if topup.status == "PENDING" %}
+                    <div class="button-container">
+                        <button class="button accept" onclick="handleAction('{{ topup.id }}', 'ACCEPTED')">ACCEPT</button>
+                        <button class="button reject" onclick="handleAction('{{ topup.id }}', 'REJECTED')">REJECT</button>
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
 </body>
 </html>
-
 {% endblock content %}

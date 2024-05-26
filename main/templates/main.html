@@ -7,10 +7,18 @@
 <a href="{% url 'authentication:register' %}"><button>Register</button></a>
 {% else %}
 <h2>Hello, {{ request.session.name }}</h2>
+{% if request.COOKIES.staff == "false" %}
 <a href="#"><button>Products</button></a>
 <a href="#"><button>Top Up</button></a>
 <a href="{% url 'buy:show_main' %}"><button>Buy</button></a>
-<a href="#"><button>Sell</button></a>
+<a href="{% url 'sell:manage_orders' %}"><button>Sell</button></a>
 <a href="{% url 'authentication:logout' %}"><button>Logout</button></a>
+{% endif %}
+{% if request.COOKIES.staff == "true" %}
+<a href="{% url 'staff:manage_payment' %}"><button>Manage Payment</button></a>
+<a href="{% url 'staff:manage_topup' %}"><button>Manage Top Up</button></a>
+<a href="{% url 'buy:show_main' %}"><button>Buy</button></a>
+<a href="{% url 'authentication:logout' %}"><button>Logout</button></a>
+{% endif %}
 {% endif %}
 {% endblock content %}
