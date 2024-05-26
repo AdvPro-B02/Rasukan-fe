@@ -14,8 +14,7 @@ def show_main(request):
     return render(request, "buy.html", context)
 
 def see_cart(request):
-    # userID = request.session.get('id') 
-    userID = 'e3b012da-23a3-46c3-9307-23387f350d85'
+    userID = request.session.get('id') 
 
     createCart = requests.get(f'{link}/cart/get/{userID}')
 
@@ -34,8 +33,8 @@ def see_cart(request):
 def all_listings(request):
     response = requests.get(f'{link}/listing/all')
     listings = response.json()
-    # buyerID = request.session.get('id') 
-    buyerID = 'e3b012da-23a3-46c3-9307-23387f350d85'
+    buyerID = request.session.get('id') 
+    # buyerID = 'e3b012da-23a3-46c3-9307-23387f350d85'
 
     # if (is_staff):
     #     staffId = 'true' 
@@ -50,8 +49,8 @@ def all_listings(request):
     return render(request, "all_listings.html", context)
 
 def see_my_listings(request):
-    # userID = request.session.get('id')
-    userID = 'e3b012da-23a3-46c3-9307-23387f350d85'
+    userID = request.session.get('id')
+    # userID = 'e3b012da-23a3-46c3-9307-23387f350d85'
     response = requests.get(f'{link}/listings/by_seller/{userID}')
     listings = response.json()
 
@@ -67,8 +66,8 @@ def create_listing(request):
         name = request.POST.get('name')
         price = request.POST.get('price')
         stock = request.POST.get('stock')
-        seller = 'e3b012da-23a3-46c3-9307-23387f350d85'
-        # seller = request.session.get('id')
+        # seller = 'e3b012da-23a3-46c3-9307-23387f350d85'
+        seller = request.session.get('id')
 
         urll = f'{link}/listing/create'
         # headers = {'Authorization': 'Your Token Here'}
@@ -85,14 +84,35 @@ def create_listing(request):
         return render(request, 'create_listing.html')
     
 
+# def edit_listing(request):
+#     if request.method == 'POST':
+#         listing_id = request.POST.get('listing_id')
+#         name = request.POST.get('name')
+#         price = request.POST.get('price')
+#         stock = request.POST.get('stock')
+#         seller = request.session.get('id') 
+#         # seller = 'e3b012da-23a3-46c3-9307-23387f350d85'
+
+#         # Update the listing details
+#         url = f'{link}/listing/update/{listing_id}'
+#         data = {
+#             "name": name,
+#             "price": price,
+#             "stock": stock,
+#             "seller": seller
+#         }
+#         response = requests.post(url, json=data)
+        
+#         # Redirect to the 'all_listings' view
+#         return redirect('buy:all_listings')
+
 def edit_listing(request):
     if request.method == 'POST':
         listing_id = request.POST.get('listing_id')
         name = request.POST.get('name')
         price = request.POST.get('price')
         stock = request.POST.get('stock')
-        # seller = request.session.get('id') 
-        seller = 'e3b012da-23a3-46c3-9307-23387f350d85'
+        seller = request.session.get('id')
 
         # Update the listing details
         url = f'{link}/listing/update/{listing_id}'
@@ -103,17 +123,20 @@ def edit_listing(request):
             "seller": seller
         }
         response = requests.post(url, json=data)
-        
-        # Redirect to the 'all_listings' view
-        return redirect('buy:all_listings')
+
+        if response.status_code == 200:
+            # Return a success message or the updated listing details as JSON
+            return JsonResponse({'success': True, 'message': 'Listing updated successfully'})
+        else:
+            return JsonResponse({'success': False, 'message': 'Failed to update listing'})
 
     
 def add_to_cart(request):
     if request.method == 'POST':
 
         listing_id = request.POST.get('listing_id')
-        # cart_id = request.session.get('id') 
-        cart_id = 'e3b012da-23a3-46c3-9307-23387f350d85'
+        cart_id = request.session.get('id') 
+        # cart_id = 'e3b012da-23a3-46c3-9307-23387f350d85'
         createCart = requests.get(f'{link}/cart/get/{cart_id}')
 
         # print(listing_id)
