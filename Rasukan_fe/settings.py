@@ -30,7 +30,7 @@ PRODUCTION = env.bool('PRODUCTION', False)
 SECRET_KEY = 'django-insecure-f8_ur5bj%^gm1n7z+s%rqs=(wie0e(v068az(th#54lt$hwz3c'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = not PRODUCTION
+DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1', '*']
 
@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'buy',
     'sell',
     'payment',
+    'topup',
     'authentication',
 ]
 
