@@ -9,7 +9,7 @@
 <h2>Hello, {{ request.session.name }}</h2>
 <a href="#"><button>Products</button></a>
 <a href="#"><button>Top Up</button></a>
-<a href="#"><button>Buy</button></a>
+<a href="{% url 'buy:show_main' %}"><button>Buy</button></a>
 <a href="#"><button>Sell</button></a>
 <a href="{% url 'authentication:logout' %}"><button>Logout</button></a>
 {% endif %}
