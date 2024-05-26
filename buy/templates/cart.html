@@ -52,7 +52,7 @@
                     <button type="button" onclick="updateAmount('{{ listing.listingId }}', -1)">-</button>
                     <span id="amount-{{ listing.listingId }}">1</span>
                     <button type="button" onclick="updateAmount('{{ listing.listingId }}', 1)">+</button>
-                    <input type="hidden" id="hidden-amount-{{ listing.listingId }}" name="hidden_amounts[]" value="1">
+                    <input type="hidden" id="hidden-amount-{{ listing.listingId }}" name="hidden_amounts[]" value ="">
                 </td>
                 <td id="total-{{ listing.listingId }}">{{ listing.price }}</td>
                 <td>
@@ -68,7 +68,7 @@
             <tr>
                 <td colspan="4">Total:</td>
                 <td id="overall-total"></td>
-                <input type="hidden" id="overall_total" name="overall_total" value="1">
+                <input type="hidden" id="overall_total" name="overall_total" value={{ overallTotal }}>
             </tr>
             <tr>
                 <td colspan="7">
@@ -101,6 +101,9 @@
             amount = 1;
         }
         amountSpan.textContent = amount;
+        
+        const hiddenAmountInput = document.getElementById(`hidden-amount-${listingId}`);
+        hiddenAmountInput.value = amount;
 
         // Update the total price for the listing
         const priceSpan = document.getElementById(`price-${listingId}`);
@@ -118,6 +121,7 @@
             overallTotal += parseFloat(total.textContent);
         });
         document.getElementById('overall-total').textContent = overallTotal.toFixed(2);
+        document.getElementById('overall_total').value = overallTotal.toFixed(2);
     }
 </script>
 {% endblock content %}

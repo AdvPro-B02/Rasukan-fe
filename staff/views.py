@@ -21,7 +21,6 @@ def manage_payment(request):
     context = {
         'orders': orders,
     }
-    print(orders)
     return render(request, "manage_payment.html", context)
 
 def manage_topup(request):
@@ -30,14 +29,11 @@ def manage_topup(request):
     context = {
         'topups': topups,
     }
-    print(topups)
     return render(request, "manage_topup.html", context)
 
 def update_topup_status(request, topup_id, new_status):
     if request.method == 'PUT':
         url = f'{link_topup}/{topup_id}?status={new_status}'
-        print('aaaaa')
-        print(url)
         response = requests.put(url)
 
         if response.status_code == 200:
@@ -58,7 +54,6 @@ def update_payment_status(request, order_id, new_status):
 def delete_order(request, order_id):
     if request.method == 'DELETE':
         url = f'{link_order}/delete/{order_id}'
-        print(url)
         response = requests.delete(url)
 
         if response.status_code == 200:
@@ -72,7 +67,6 @@ def staff_all_listings(request):
         listings = response.json()
         
         is_staff = request.COOKIES.get('staff') 
-        print(is_staff)
         
         staff = is_staff == 'true'
         context = {
