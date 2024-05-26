@@ -182,7 +182,7 @@ def add_to_cart(request):
         createCart = requests.get(f'{link}/cart/get/{cart_id}')
 
         # print(listing_id)
-        print(cart_id)
+
 
         urll = f'{link}/cart/add/{cart_id}/{listing_id}'
         # print(url)
@@ -225,7 +225,6 @@ def checkout(request):
         listingQuantities = request.POST.getlist('hidden_amounts[]')
         for i, listing_id in enumerate(listing_ids):
             listingQuantityMap[listing_id] = listingQuantities[i]
-            print(listingQuantityMap)
 
         url = f'{link_order}/checkout'
         # headers = {'Authorization': 'Your Token Here'}
@@ -262,11 +261,10 @@ def checkout(request):
                 "listingQuantityMap": listingQuantityMap
             }
         response = requests.post(url, json=data)
-
         
         context = {
             'listings': listings
         }
-        print(listings)
+
         return render(request, 'checkout.html', context)
 
