@@ -5,6 +5,7 @@ from django.http import JsonResponse
 
 # link = 'http://localhost:8080/Buyer'
 link = 'http://34.87.180.11:80/Buyer'
+link_order = 'http://34.87.46.220/order'
 
 # Create your views here.
 def show_main(request):
@@ -168,12 +169,60 @@ def remove_from_cart(request):
 def checkout(request):
     if request.method == 'POST':
         listing_ids = request.POST.getlist('listingcheckout[]')
+        userId = request.session.get('id')
+        nominal = request.POST.get('overall_total')
+        notes = request.POST.get('notes')
+        discount= request.POST.get('discount')
+
         listings = []
+        listingQuantityMap = {}
         for listing_id in listing_ids:
             response = requests.get(f'{link}/listing/get/{listing_id}')
             listing = response.json()
+            seller = listing.get('seller')
             listings.append(listing)
+        listingQuantities = request.POST.getlist('hidden_amounts[]')
+        for i, listing_id in enumerate(listing_ids):
+            listingQuantityMap[listing_id] = listingQuantities[i]
+            print(listingQuantityMap)
 
+        url = f'{link_order}/checkout'
+        # headers = {'Authorization': 'Your Token Here'}
+        if len(notes)!=0 and len(discount)!=0:
+            data = {
+                "userId": userId,
+                "nominal": nominal,
+                "discount": discount,
+                "notes": notes,
+                "seller": seller,
+                "listingQuantityMap": listingQuantityMap
+            }
+        elif len(notes)==0 and len(discount)!=0:
+            data = {
+                "userId": userId,
+                "nominal": nominal,
+                "discount": discount,
+                "seller": seller,
+                "listingQuantityMap": listingQuantityMap
+            }
+        elif len(notes)!=0 and len(discount)==0 :
+            data = {
+                "userId": userId,
+                "nominal": nominal,
+                "notes": notes,
+                "seller": seller,
+                "listingQuantityMap": listingQuantityMap
+            }
+        else:
+            data = {
+                "userId": userId,
+                "nominal": nominal,
+                "seller": seller,
+                "listingQuantityMap": listingQuantityMap
+            }
+        response = requests.post(url, json=data)
+
+        
         context = {
             'listings': listings
         }

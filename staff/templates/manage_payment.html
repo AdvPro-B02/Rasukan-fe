@@ -44,9 +44,6 @@
 </head>
 <body>
     <h1>Manage Orders</h1>
-    {% if message %}
-        <p>{{ message }}</p>
-    {% else %}
     <div id="orders-container">
         {% for order in orders %}
             <div class="card" id="order-{{ order.orderId }}">
@@ -63,17 +60,22 @@
                         <li>{{ listing.name }} - Quantity: {{ listing.quantity }} - Price: {{ listing.price }}</li>
                     {% endfor %}
                 </ul>
-                {% if order.orderStatus == "PROCESSED" %}
+                {% if order.orderStatus == "WAITING_PAYMENT" %}
                     <div class="button-container">
                         {% csrf_token %}
-                        <button class="button finish" onclick="handleAction('{{ order.orderId }}', 'FINISHED')">FINISH</button>
-                        <button class="button cancel" onclick="handleAction('{{ order.orderId }}', 'CANCELLED')">CANCEL</button>
+                        <button class="button accept" onclick="handleAction('{{ order.orderId }}', 'ACCEPTED')">ACCEPT</button>
+                        <button class="button reject" onclick="handleAction('{{ order.orderId }}', 'REJECTED')">REJECT</button>
+                    </div>
+                {% endif %}
+                {% if order.orderStatus == "FINISHED" or order.orderStatus == "CANCELLED" %}
+                    <div class="button-container">
+                        {% csrf_token %}
+                        <button class="button reject" onclick="handleDelete('{{ order.orderId }}')">DELETE</button>
                     </div>
                 {% endif %}
             </div>
         {% endfor %}
     </div>
-    {% endif %}
     <script>
         function getCookie(name) {
             let cookieValue = null;
@@ -91,7 +93,7 @@
         }
 
         function handleAction(orderId, newStatus) {
-            const url = `{% url 'sell:update_order_status' order_id='ORDER_ID_PLACEHOLDER' new_status='NEW_STATUS_PLACEHOLDER' %}`.replace('ORDER_ID_PLACEHOLDER', orderId).replace('NEW_STATUS_PLACEHOLDER', newStatus);
+            const url = `{% url 'staff:update_payment_status' order_id='ORDER_ID_PLACEHOLDER' new_status='NEW_STATUS_PLACEHOLDER' %}`.replace('ORDER_ID_PLACEHOLDER', orderId).replace('NEW_STATUS_PLACEHOLDER', newStatus);
             const csrftoken = getCookie('csrftoken');
             console.log(`Making request to: ${url}`);
 
@@ -123,6 +125,37 @@
                 alert('Error updating the payment status');
             });
         }
+        function handleDelete(orderId) {
+        const url = `{% url 'staff:delete_order' order_id='ORDER_ID_PLACEHOLDER' %}`.replace('ORDER_ID_PLACEHOLDER', orderId);
+        const csrftoken = getCookie('csrftoken');
+        console.log(`Making DELETE request to: ${url}`);
+
+        fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': csrftoken,
+            },
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Response data:', data);
+            if (data.success) {
+                const orderCard = document.getElementById(`order-${orderId}`);
+                orderCard.remove(); 
+            } else {
+                alert('Failed to delete order');
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            alert('Error deleting order');
+        });
+    }
     </script>
 </body>
 </html>
