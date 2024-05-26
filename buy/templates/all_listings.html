@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .card-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        margin-top: 20px;
+    }
+    
+    .card {
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 15px;
+        margin: 10px;
+        width: 300px; /* Adjust as needed */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        background-color: #fff;
+    }
+    
+    .card h2 {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+    
+    .card p {
+        margin: 5px 0;
+    }
+</style>
+
+<h1><a href="{% url 'buy:show_main' %}" style="color: black; text-decoration: none;">All Listings</a></h1>
+
+
+<div class="card-container">
+    {% for listing in listings %}
+    <div class="card">
+
+        {% if buyerID != listing.seller %}
+        <h2>{{ listing.name }}</h2>
+        <p>Price: {{ listing.price }}</p>
+        <p>Stock: {{ listing.stock }}</p>
+        {% endif %}
+
+        
+        {% if buyerID == listing.seller %}
+        <!-- <button onclick="showEditForm('{{ listing.listingId }}')">Edit</button> -->
+        <div id="edit-{{ listing.listingId }}">
+            <!-- <label for="name-{{ listing.listingId }}">Name:</label> -->
+            <h2>
+                <input id="name-input-{{ listing.listingId }}" name="name" value="{{ listing.name }}">
+                <span id="name-label-{{ listing.listingId }}">{{ listing.name }}</span>
+            </h2>
+
+            <p>
+                <label for="price-{{ listing.listingId }}">Price:</label>
+                <input id="price-input-{{ listing.listingId }}" name="price" value="{{ listing.price }}">
+                <span id="price-label-{{ listing.listingId }}">{{ listing.price }}</span>
+            </p>
+        
+            <p>
+                <label for="stock-{{ listing.listingId }}">Stock:</label>
+                <input id="stock-input-{{ listing.listingId }}" name="stock" value="{{ listing.stock }}">
+                <span id="stock-label-{{ listing.listingId }}">{{ listing.stock }}</span>
+            </p>
+        
+            <button onclick="toggleEditMode('{{ listing.listingId }}')">Edit</button>
+            <button onclick="editListing('{{ listing.listingId }}')" style="display: none;" id="confirm-edit-{{ listing.listingId }}">Confirm Edit</button>
+        </div>
+        {% else %}
+        <form action="{% url 'buy:add_to_cart' %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="listing_id" value="{{ listing.listingId }}">
+            <input type="submit" value="Add to Cart">
+        </form>
+        {% endif %}
+        <button onclick="showDetails('{{ listing.listingId }}')">Show Details</button>
+        <div id="details-{{ listing.listingId }}" style="display: none;">
+            <p>Listing ID: {{ listing.listingId }}</p>
+            <p>Name: {{ listing.name }}</p>
+            <p>Price: {{ listing.price }}</p>
+            <p>Stock: {{ listing.stock }}</p>
+            <p>Seller: {{ listing.seller }}</p>
+            <p>Order Counter: {{ listing.orderCounter }}</p>
+        </div>
+        
+    </div>
+    {% endfor %}
+</div>
+<a href="{% url 'buy:show_main' %}"><button>Back</button></a>
+
+<script>
+    function showEditForm(id) {
+        var editFormDiv = document.getElementById('edit-' + id);
+        if (editFormDiv.style.display === "none") {
+            editFormDiv.style.display = "block";
+        } else {
+            editFormDiv.style.display = "none";
+        }
+    }
+
+    function showDetails(id) {
+        var detailsDiv = document.getElementById('details-' + id);
+        if (detailsDiv.style.display === "none") {
+            detailsDiv.style.display = "block";
+        } else {
+            detailsDiv.style.display = "none";
+        }
+    }
+
+    function toggleEditMode(id) {
+        const nameInput = document.getElementById(`name-input-${id}`);
+        const priceInput = document.getElementById(`price-input-${id}`);
+        const stockInput = document.getElementById(`stock-input-${id}`);
+        const nameLabel = document.getElementById(`name-label-${id}`);
+        const priceLabel = document.getElementById(`price-label-${id}`);
+        const stockLabel = document.getElementById(`stock-label-${id}`);
+        const confirmEditButton = document.getElementById(`confirm-edit-${id}`);
+
+        if (nameInput.style.display === 'none') {
+            // Switch to edit mode
+            nameInput.style.display = 'inline';
+            priceInput.style.display = 'inline';
+            stockInput.style.display = 'inline';
+            nameLabel.style.display = 'none';
+            priceLabel.style.display = 'none';
+            stockLabel.style.display = 'none';
+            confirmEditButton.style.display = 'inline';
+        } else {
+            // Switch to view mode
+            nameInput.style.display = 'none';
+            priceInput.style.display = 'none';
+            stockInput.style.display = 'none';
+            nameLabel.style.display = 'inline';
+            priceLabel.style.display = 'inline';
+            stockLabel.style.display = 'inline';
+            confirmEditButton.style.display = 'none';
+        }
+    }
+
+    function editListing(id) {
+        const nameInput = document.getElementById(`name-input-${id}`);
+        const priceInput = document.getElementById(`price-input-${id}`);
+        const stockInput = document.getElementById(`stock-input-${id}`);
+        const nameLabel = document.getElementById(`name-label-${id}`);
+        const priceLabel = document.getElementById(`price-label-${id}`);
+        const stockLabel = document.getElementById(`stock-label-${id}`);
+
+        const formData = new FormData();
+        formData.append('listing_id', id);
+        formData.append('name', nameInput.value);
+        formData.append('price', priceInput.value);
+        formData.append('stock', stockInput.value);
+        formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+        fetch('{% url "buy:edit_listing" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+            },
+            credentials: 'same-origin',
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log(data.message);
+
+                // Update the listing details in the DOM
+                nameLabel.textContent = nameInput.value;
+                priceLabel.textContent = priceInput.value;
+                stockLabel.textContent = stockInput.value;
+
+                toggleEditMode(id);
+            } else {
+                console.error(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+
+    // Initially hide input fields and show label elements
+    document.querySelectorAll('input[id^="name-input-"], input[id^="price-input-"], input[id^="stock-input-"]').forEach(input => {
+        input.style.display = 'none';
+    });
+    document.querySelectorAll('span[id^="name-label-"], span[id^="price-label-"], span[id^="stock-label-"]').forEach(label => {
+        label.style.display = 'inline';
+    });
+
+</script>
+
+{% endblock content %}

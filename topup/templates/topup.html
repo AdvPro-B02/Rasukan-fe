@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Top Up History</h1>
+
+<a href="{% url 'topup:create_topup' %}"><button>Top Up</button></a>
+<button onclick="deleteAll();">Delete History</button><br><br>
+<table id="history"></table>
+
+<script>
+    async function getTopUpHistory() {
+        return fetch("{% url 'topup:get_topup' %}")
+            .then((res) => res.json());
+    }
+
+    async function deleteOne(id) {
+        // id = id.trim();
+        const deleteUrl = "{% url 'topup:delete_topup' id=0 %}".replace("0", id);
+        let history = await fetch(deleteUrl).then((res) => res.json());
+        refreshHistory(history);
+    }
+
+    async function deleteAll() {
+        fetch("{% url 'topup:delete_all_topup' %}");
+        document.getElementById("history").innerHTML = `
+            <thead>
+                    <tr>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+            </thead>
+            <tbody><tbody>
+        `;
+    }
+
+    async function refreshHistory(history) {
+        document.getElementById("history").innerHTML = "";
+        let htmlString = `
+            <thead>
+                    <tr>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+            </thead>
+            <tbody>
+        `;
+        history.forEach(item => {
+            const { id, userId, amount, status } = item;
+            htmlString += `
+                <tr>
+                    <td>${amount}</td>
+                    <td>${status}</td>
+                    <td>
+                        <button onclick="deleteOne('${id}');">Delete</button>
+                    </td>
+                </tr>
+            `;
+        });
+        htmlString += "</tbody>";
+        document.getElementById("history").innerHTML = htmlString;
+    }
+
+    async function main() {
+        let history = await getTopUpHistory();
+        refreshHistory(history);
+    }
+
+    main();
+</script>
+{% endblock content %}
