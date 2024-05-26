@@ -30,13 +30,18 @@ PRODUCTION = env.bool('PRODUCTION', False)
 SECRET_KEY = 'django-insecure-f8_ur5bj%^gm1n7z+s%rqs=(wie0e(v068az(th#54lt$hwz3c'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = not PRODUCTION
+DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1', '*']
 
-AUTH_URL = "http://localhost:8080"
-LSP_URL = "http://localhost:8081"
-BUYSELL_URL = "http://localhost:8082"
+
+AUTH_URL = "http://35.197.147.171"
+LSP_URL = "http://34.87.46.220"
+BUYSELL_URL = "http://34.87.180.11"
+
+# AUTH_URL = "http://localhost:8080"
+# LSP_URL = "http://localhost:8081"
+# BUYSELL_URL = "http://localhost:8082"
 
 if PRODUCTION:
     AUTH_URL = "http://35.197.147.171"
@@ -57,6 +62,7 @@ INSTALLED_APPS = [
     'buy',
     'sell',
     'payment',
+    'topup',
     'authentication',
 ]
 
